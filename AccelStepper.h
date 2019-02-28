@@ -413,6 +413,12 @@ public:
     /// per second. Must be > 0.0. This is an expensive call since it requires a square 
     /// root to be calculated. Dont call more ofthen than needed
     void    setAcceleration(float acceleration);
+      
+    /// Returns the acceleration/deceleration rate.
+    /// @return acceleration The desired acceleration in steps per second
+    /// per second. Must be > 0.0. This is an expensive call since it requires a square 
+    /// root to be calculated. Dont call more ofthen than needed
+    float    getAcceleration() const;
 
     /// Sets the desired constant speed for use with runSpeed().
     /// \param[in] speed The desired constant speed in steps per

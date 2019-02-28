@@ -295,6 +295,11 @@ void AccelStepper::setAcceleration(float acceleration)
     }
 }
 
+float AccelStepper::getAcceleration() const 
+{
+  return _acceleration;
+}
+
 void AccelStepper::setSpeed(float speed)
 {
     if (speed == _speed)
