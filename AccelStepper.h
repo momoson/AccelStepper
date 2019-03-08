@@ -444,7 +444,7 @@ class AccelStepper
     /// is called.
     /// \param[in] enablePin Arduino digital pin number for motor enable
     /// \sa setPinsInverted
-    void    setEnablePin(uint8_t enablePin = 0xff);
+    void    setEnablePin(uint8_t enablePin, bool enableInvert);
 
     /// Checks to see if the motor is currently running to a target
     /// \return true if the speed is not zero or not at the target position

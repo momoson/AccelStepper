@@ -240,49 +240,27 @@ float AccelStepper::speed()
 // Prevents power consumption on the outputs
 void    AccelStepper::disableOutputs()
 {   
-  if (! _interface) return;
-
-  setOutputPins(0); // Handles inversion automatically
   if (_enablePin != 0xff)
   {
-    pinMode(_enablePin, OUTPUT);
     digitalWrite(_enablePin, LOW ^ _enableInverted);
   }
 }
 
 void    AccelStepper::enableOutputs()
 {
-  if (! _interface) 
-    return;
-
-  pinMode(_pin[0], OUTPUT);
-  pinMode(_pin[1], OUTPUT);
-  if (_interface == FULL4WIRE || _interface == HALF4WIRE)
-  {
-    pinMode(_pin[2], OUTPUT);
-    pinMode(_pin[3], OUTPUT);
-  }
-  else if (_interface == FULL3WIRE || _interface == HALF3WIRE)
-  {
-    pinMode(_pin[2], OUTPUT);
-  }
-
   if (_enablePin != 0xff)
   {
-    pinMode(_enablePin, OUTPUT);
     digitalWrite(_enablePin, HIGH ^ _enableInverted);
   }
 }
 
-void AccelStepper::setEnablePin(uint8_t enablePin)
+void AccelStepper::setEnablePin(uint8_t enablePin, bool enableInvert)
 {
   _enablePin = enablePin;
-
-  // This happens after construction, so init pin now.
+  _enableInverted = enableInvert;
   if (_enablePin != 0xff)
   {
     pinMode(_enablePin, OUTPUT);
-    digitalWrite(_enablePin, HIGH ^ _enableInverted);
   }
 }
 
