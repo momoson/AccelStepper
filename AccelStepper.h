@@ -310,20 +310,20 @@
 /// and 16214 steps per second using run();
 class AccelStepper
 {
-public:
+  public:
     /// \brief Symbolic names for number of pins.
     /// Use this in the pins argument the AccelStepper constructor to 
     /// provide a symbolic name for the number of pins
     /// to use.
     typedef enum
     {
-	FUNCTION  = 0, ///< Use the functional interface, implementing your own driver functions (internal use only)
-	DRIVER    = 1, ///< Stepper Driver, 2 driver pins required
-	FULL2WIRE = 2, ///< 2 wire stepper, 2 motor pins required
-	FULL3WIRE = 3, ///< 3 wire stepper, such as HDD spindle, 3 motor pins required
-        FULL4WIRE = 4, ///< 4 wire full stepper, 4 motor pins required
-	HALF3WIRE = 6, ///< 3 wire half stepper, such as HDD spindle, 3 motor pins required
-	HALF4WIRE = 8  ///< 4 wire half stepper, 4 motor pins required
+      FUNCTION  = 0, ///< Use the functional interface, implementing your own driver functions (internal use only)
+      DRIVER    = 1, ///< Stepper Driver, 2 driver pins required
+      FULL2WIRE = 2, ///< 2 wire stepper, 2 motor pins required
+      FULL3WIRE = 3, ///< 3 wire stepper, such as HDD spindle, 3 motor pins required
+      FULL4WIRE = 4, ///< 4 wire full stepper, 4 motor pins required
+      HALF3WIRE = 6, ///< 3 wire half stepper, such as HDD spindle, 3 motor pins required
+      HALF4WIRE = 8  ///< 4 wire half stepper, 4 motor pins required
     } MotorInterfaceType;
 
     /// Constructor. You can have multiple simultaneous steppers, all moving
@@ -366,7 +366,7 @@ public:
     /// \param[in] forward void-returning procedure that will make a forward step
     /// \param[in] backward void-returning procedure that will make a backward step
     AccelStepper(void (*forward)(), void (*backward)());
-    
+
     /// Set the target position. The run() function will try to move the motor (at most one step per call)
     /// from the current position to the target position set by the most
     /// recent call to this function. Caution: moveTo() also recalculates the speed for the next step. 
@@ -413,7 +413,7 @@ public:
     /// per second. Must be > 0.0. This is an expensive call since it requires a square 
     /// root to be calculated. Dont call more ofthen than needed
     void    setAcceleration(float acceleration);
-      
+
     /// Returns the acceleration/deceleration rate.
     /// @return acceleration The desired acceleration in steps per second
     /// per second. Must be > 0.0. This is an expensive call since it requires a square 
@@ -456,7 +456,7 @@ public:
     /// \param[in] position The position in steps of wherever the motor
     /// happens to be right now.
     void    setCurrentPosition(long position);  
-    
+
     /// Moves the motor (with acceleration/deceleration) 
     /// to the target position and blocks until it is at
     /// position. Dont use this in event loops, since it blocks.
@@ -524,14 +524,14 @@ public:
     /// \return true if the speed is not zero or not at the target position
     bool    isRunning();
 
-protected:
+  protected:
 
     /// \brief Direction indicator
     /// Symbolic names for the direction the motor is turning
     typedef enum
     {
-	DIRECTION_CCW = 0,  ///< Counter-Clockwise
-        DIRECTION_CW  = 1   ///< Clockwise
+      DIRECTION_CCW = 0,  ///< Counter-Clockwise
+      DIRECTION_CW  = 1   ///< Clockwise
     } Direction;
 
     /// Forces the library to compute a new instantaneous speed and set that as
@@ -608,8 +608,8 @@ protected:
     /// Current direction motor is spinning in
     /// Protected because some peoples subclasses need it to be so
     boolean _direction; // 1 == CW
-    
-private:
+
+  private:
     /// Number of pins on the stepper motor. Permits 2 or 4. 2 pins is a
     /// bipolar, and 4 pins is a unipolar.
     uint8_t        _interface;          // 0, 1, 2, 4, 8, See MotorInterfaceType
