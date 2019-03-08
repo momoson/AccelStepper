@@ -147,23 +147,18 @@ void AccelStepper::computeNewSpeed()
 #endif
 }
 
-AccelStepper::AccelStepper(uint8_t interface, uint8_t pin1, uint8_t pin2, uint8_t pin3, uint8_t pin4, bool enable)
+AccelStepper::AccelStepper(uint8_t step_pin_shift, uint8_t dir_pin_shift)
 {
-  _interface = interface;
   _currentPos = 0;
   _targetPos = 0;
   _speed = 0.0;
   _maxSpeed = 1.0;
-  _acceleration = 0.0;
-  _sqrt_twoa = 1.0;
+  _acceleration = 0.0; // this is later set to default value
   _stepInterval = 0;
-  _minPulseWidth = 1;
   _enablePin = 0xff;
   _lastStepTime = CUR_TIME;
-  _pin[0] = pin1;
-  _pin[1] = pin2;
-  _pin[2] = pin3;
-  _pin[3] = pin4;
+  _step_pin = step_pin_shift;
+  _dir_pin = dir_pin_shift;
   _enableInverted = false;
 
   // NEW
@@ -173,11 +168,6 @@ AccelStepper::AccelStepper(uint8_t interface, uint8_t pin1, uint8_t pin2, uint8_
   _cmin = 1.0;
   _direction = DIRECTION_CCW;
 
-  int i;
-  for (i = 0; i < 4; i++)
-    _pinInverted[i] = 0;
-  if (enable)
-    enableOutputs();
   // Some reasonable default
   setAcceleration(1);
 }

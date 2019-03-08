@@ -341,7 +341,7 @@ class AccelStepper
     /// to pin 5.
     /// \param[in] enable If this is true (the default), enableOutputs() will be called to enable
     /// the output pins at construction time.
-    AccelStepper(uint8_t interface = AccelStepper::FULL4WIRE, uint8_t pin1 = 2, uint8_t pin2 = 3, uint8_t pin3 = 4, uint8_t pin4 = 5, bool enable = true);
+    AccelStepper(uint8_t step_pin_shift, uint8_t dir_pin_shift);
 
     /// Set the target position. The run() function will try to move the motor (at most one step per call)
     /// from the current position to the target position set by the most
@@ -475,16 +475,9 @@ class AccelStepper
     boolean _direction; // 1 == CW
 
   private:
-    /// Number of pins on the stepper motor. Permits 2 or 4. 2 pins is a
-    /// bipolar, and 4 pins is a unipolar.
-    uint8_t        _interface;          // 0, 1, 2, 4, 8, See MotorInterfaceType
+    uint8_t        _step_pin;
+    uint8_t        _dir_pin;
 
-    /// Arduino pin number assignments for the 2 or 4 pins required to interface to the
-    /// stepper motor or driver
-    uint8_t        _pin[4];
-
-    /// Whether the _pins is inverted or not
-    uint8_t        _pinInverted[4];
 
     /// The current absolution position in steps.
     long           _currentPos;    // Steps
