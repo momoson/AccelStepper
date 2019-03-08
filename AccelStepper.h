@@ -643,10 +643,10 @@ class AccelStepper
 
     /// The current interval between steps in microseconds.
     /// 0 means the motor is currently stopped with _speed == 0
-    unsigned long  _stepInterval;
+    unsigned int  _stepInterval;
 
     /// The last step time in microseconds
-    unsigned long  _lastStepTime;
+    unsigned int  _lastStepTime;
 
     /// The minimum allowed pulse width in microseconds
     unsigned int   _minPulseWidth;

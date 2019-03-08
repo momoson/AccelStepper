@@ -5,6 +5,8 @@
 
 #include "AccelStepper.h"
 
+#define CUR_TIME ((unsigned int)((TCNT1H << 8) | TCNT1L));
+
 #if 0
 // Some debugging assistance
 void dump(uint8_t* p, int l)
@@ -26,6 +28,9 @@ void AccelStepper::moveTo(long absolute)
   {
     _targetPos = absolute;
     computeNewSpeed();
+    if(_stepInterval == 0){ // motor is stopped, thus update lastStepTime
+      _lastStepTime = CUR_TIME;
+    }
     // compute new n?
   }
 }
@@ -44,9 +49,10 @@ boolean AccelStepper::runSpeed()
   if (!_stepInterval)
     return false;
 
-  unsigned long time = micros();   
-  if (time - _lastStepTime >= _stepInterval)
+  unsigned int time = CUR_TIME;
+  if (((time  - _lastStepTime) << 2) >= _stepInterval)
   {
+    _lastStepTime = time;
     if (_direction == DIRECTION_CW)
     {
       // Clockwise
@@ -59,7 +65,6 @@ boolean AccelStepper::runSpeed()
     }
     step(_currentPos);
 
-    _lastStepTime = time; // Caution: does not account for costs in step()
 
     return true;
   }
@@ -199,7 +204,7 @@ AccelStepper::AccelStepper(uint8_t interface, uint8_t pin1, uint8_t pin2, uint8_
   _stepInterval = 0;
   _minPulseWidth = 1;
   _enablePin = 0xff;
-  _lastStepTime = 0;
+  _lastStepTime = CUR_TIME;
   _pin[0] = pin1;
   _pin[1] = pin2;
   _pin[2] = pin3;
