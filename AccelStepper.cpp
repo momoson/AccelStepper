@@ -236,6 +236,40 @@ float AccelStepper::speed()
   return _speed;
 }
 
+//return true when movement done
+bool AccelStepper::update_speed()
+{
+  if(_step_done_flag)
+  {
+    _step_done_flag = false;
+    computeNewSpeed();
+  }
+  return _speed == 0.0 && distanceToGo() == 0;
+}
+
+void AccelStepper::get_step(byte & step, byte & dir)
+{
+  if(!_stepInterval) return;
+
+  unsigned int time = CUR_TIME;
+  if (((time  - _lastStepTime) << 2) >= _stepInterval)
+  {
+    _lastStepTime = time;
+    if (_direction == DIRECTION_CW)
+    {
+      // Clockwise
+      _currentPos += 1;
+      dir |= HIGH << _dir_pin;
+    }
+    else
+    {
+      // Anticlockwise  
+      _currentPos -= 1;
+    }
+    step |= HIGH << _step_pin;
+    _step_done_flag = true;
+  }
+}
 
 // Prevents power consumption on the outputs
 void    AccelStepper::disableOutputs()

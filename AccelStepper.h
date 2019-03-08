@@ -355,6 +355,9 @@ class AccelStepper
     /// \param[in] relative The desired position relative to the current position. Negative is
     /// anticlockwise from the current position.
     void    move(long relative);
+    
+    bool update_speed();
+    void get_step(byte & step, byte & dir);
 
     /// Sets the maximum permitted speed. The run() function will accelerate
     /// up to the speed set by this function.
@@ -478,6 +481,7 @@ class AccelStepper
     uint8_t        _step_pin;
     uint8_t        _dir_pin;
 
+    bool _step_done_flag;
 
     /// The current absolution position in steps.
     long           _currentPos;    // Steps
