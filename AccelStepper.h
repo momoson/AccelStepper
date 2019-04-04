@@ -356,8 +356,7 @@ class AccelStepper
     /// anticlockwise from the current position.
     void    move(long relative);
     
-    bool update_speed();
-    void get_step(byte & step, byte & dir);
+    bool get_step(byte & step, byte & dir);
 
     /// Sets the maximum permitted speed. The run() function will accelerate
     /// up to the speed set by this function.
@@ -401,7 +400,10 @@ class AccelStepper
     /// The distance from the current position to the target position.
     /// \return the distance from the current position to the target position
     /// in steps. Positive is clockwise from the current position.
-    long    distanceToGo();
+    inline long AccelStepper::distanceToGo()
+    {
+      return _targetPos - _currentPos;
+    }
 
     /// The most recently set target position.
     /// \return the target position
@@ -463,16 +465,6 @@ class AccelStepper
       DIRECTION_CW  = 1   ///< Clockwise
     } Direction;
 
-    /// Forces the library to compute a new instantaneous speed and set that as
-    /// the current speed. It is called by
-    /// the library:
-    /// \li  after each step
-    /// \li  after change to maxSpeed through setMaxSpeed()
-    /// \li  after change to acceleration through setAcceleration()
-    /// \li  after change to target position (relative or absolute) through
-    /// move() or moveTo()
-    void           computeNewSpeed();
-
     /// Current direction motor is spinning in
     /// Protected because some peoples subclasses need it to be so
     boolean _direction; // 1 == CW
@@ -491,16 +483,6 @@ class AccelStepper
     /// max speed, acceleration and deceleration
     long           _targetPos;     // Steps
 
-    /// The current motos speed in steps per second
-    /// Positive is clockwise
-    float          _speed;         // Steps per second
-
-    /// The maximum permitted speed in steps per second. Must be > 0.
-    float          _maxSpeed;
-
-    /// The acceleration to use to accelerate or decelerate the motor in steps
-    /// per second per second. Must be > 0
-    float          _acceleration;
 
     /// The current interval between steps in microseconds.
     /// 0 means the motor is currently stopped with _speed == 0
@@ -514,19 +496,6 @@ class AccelStepper
 
     /// Enable pin for stepper driver, or 0xFF if unused.
     uint8_t        _enablePin;
-
-    /// The step counter for speed calculations
-    long _n;
-
-    /// Initial step size in microseconds
-    float _c0;
-
-    /// Last step size in microseconds
-    float _cn;
-
-    /// Min step size in microseconds based on maxSpeed
-    float _cmin; // at max speed
-
 };
 
 /// @example Random.pde
