@@ -357,6 +357,7 @@ class AccelStepper
     void    move(long relative);
     
     bool get_step(byte & step, byte & dir);
+    bool get_step(byte & step, byte & dir, unsigned int & time);
 
     /// Sets the maximum permitted speed. The run() function will accelerate
     /// up to the speed set by this function.
@@ -427,6 +428,7 @@ class AccelStepper
     /// Sets a new target position that causes the stepper
     /// to stop as quickly as possible, using the current speed and acceleration parameters.
     void stop();
+    void hard_stop();
 
     /// Disable motor pin outputs by setting them all LOW
     /// Depending on the design of your electronics this may turn off

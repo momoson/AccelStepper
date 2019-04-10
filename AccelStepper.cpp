@@ -5,7 +5,7 @@
 
 #include "AccelStepper.h"
 
-#define CUR_TIME ((unsigned int)((TCNT1H << 8) | TCNT1L));
+#define CUR_TIME (TCNT1L | (unsigned int)((TCNT1H << 8)));
 
 #if 0
 // Some debugging assistance
@@ -81,9 +81,14 @@ void AccelStepper::setMaxSpeed(float speed)
 
 bool AccelStepper::get_step(byte & step, byte & dir)
 {
+  unsigned int time = CUR_TIME;
+  return get_step(step, dir, time);
+}
+
+bool AccelStepper::get_step(byte & step, byte & dir, unsigned int & time)
+{
   if(distanceToGo() == 0) return true;
 
-  unsigned int time = CUR_TIME;
   if (((time  - _lastStepTime) << 2) >= _stepInterval)
   {
     _lastStepTime = time;
@@ -132,15 +137,21 @@ void AccelStepper::setEnablePin(uint8_t enablePin, bool enableInvert)
 
 void AccelStepper::stop()
 {
+  if(distanceToGo() == 0) return; // we are already stopped
   long stepsToStop = 5;
   if (_direction == DIRECTION_CW)
     move(stepsToStop);
   else
     move(-stepsToStop);
-  }
+}
+
+void AccelStepper::hard_stop()
+{
+  if(distanceToGo() == 0) return; // we are already stopped
+  move(0);
 }
 
 bool AccelStepper::isRunning()
 {
-  return !(_speed == 0.0 && _targetPos == _currentPos);
+  return !(_targetPos == _currentPos);
 }
