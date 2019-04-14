@@ -22,6 +22,38 @@ void dump(uint8_t* p, int l)
 }
 #endif
 
+void AccelStepper::generateRamp()
+{
+  float v = _speed_start;
+  _delta_t[0] = (unsigned int)(1000000.0/v) >> 2;
+  _cnt_delta_t[0] = 0;
+  _ramp_steps = 1;
+  unsigned int i=0;
+  unsigned int delta_t_temp;
+  while(true)
+  {
+    v += _delta_t[i] * _acceleration;
+    delta_t_temp = ((unsigned int)(1000000.0/v)) >> 2;
+    if(delta_t_temp <= _minStepInterval) break;// we are done with the ramp, congratulations guys
+    if(_delta_t[i]-delta_t_temp > min_delta_delta_t || _cnt_delta_t[i] == 255)
+    { // whoa, some hardcore changes here or no more place for steps at this position
+      ++i;
+      if(i>=delta_t_N){
+        Serial.println("OVERFLOW RAMP BUFFER");
+        --i; // imax generation should still be working
+        break;
+      }
+      _cnt_delta_t[i] = 0; //one step at this delta_t so far
+      ++_ramp_steps;
+      _delta_t[i] = delta_t_temp; // store the delta_t
+    } else { // delta_t did almost not change
+      ++_cnt_delta_t[i]; // just increase the steps to do at this delta_t
+      ++_ramp_steps;
+    }
+  }
+  _imax = i; // this is guaranteed larger than _minStepInterval
+}
+
 void AccelStepper::moveTo(long absolute)
 {
   if (_targetPos != absolute)
@@ -70,6 +102,9 @@ AccelStepper::AccelStepper(uint8_t step_pin_shift, uint8_t dir_pin_shift)
   _dir_pin = dir_pin_shift;
   _enableInverted = false;
   _direction = DIRECTION_CCW;
+
+  _index = 0;
+  _speed_start = 50;
 }
 
 void AccelStepper::setAcc(float acc) // expects acceleration in #steps/s/s
@@ -85,7 +120,11 @@ void AccelStepper::setMaxSpeed(float speed)
 {
   if (speed < 0.0)
     speed = -speed;
-  _stepInterval = 1000000.0/speed;
+  _minStepInterval = (unsigned int)(1000000.0/speed) >> 2; // in 4 us granularity
+  generateRamp();
+  _stepInterval = _delta_t[0];
+  _index = 0;
+  _cnt_delta_t_current = _cnt_delta_t[0];
 }
 
 bool AccelStepper::get_step(byte & step, byte & dir)
@@ -98,8 +137,8 @@ bool AccelStepper::get_step(byte & step, byte & dir, unsigned int & time)
 {
   if(distanceToGo() == 0) return true;
 
-  if (((time  - _lastStepTime) << 2) >= _stepInterval)
-  {
+  if ((time  - _lastStepTime) >= _stepInterval)
+  { // a step is due
     _lastStepTime = time;
     if (_direction == DIRECTION_CW)
     {
@@ -113,6 +152,22 @@ bool AccelStepper::get_step(byte & step, byte & dir, unsigned int & time)
       _currentPos -= 1;
     }
     step |= HIGH << _step_pin;
+
+    if(_index <= _imax){ // still in the ramp
+      if(_cnt_delta_t_current == 0) //this ramp block is done
+      {
+        ++_index;
+        if(_index <= _imax) 
+        { // ramp goes on
+          _cnt_delta_t_current = _cnt_delta_t[_index];
+          _stepInterval = _delta_t[_index];
+        } else { // we are done with the ramp
+          _stepInterval = _minStepInterval;
+        }
+      } else { // block not done yet
+        --_cnt_delta_t_current;
+      }
+    }
   }
   return false;
 }

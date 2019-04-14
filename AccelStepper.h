@@ -457,6 +457,8 @@ class AccelStepper
     /// \return true if the speed is not zero or not at the target position
     bool    isRunning();
 
+    void generateRamp();
+
     void setAcc(float acc);
   protected:
 
@@ -476,6 +478,9 @@ class AccelStepper
     uint8_t        _step_pin;
     uint8_t        _dir_pin;
 
+    float _speed_start;
+
+
     bool _step_done_flag;
 
     /// The current absolution position in steps.
@@ -490,6 +495,19 @@ class AccelStepper
     /// The current interval between steps in microseconds.
     /// 0 means the motor is currently stopped with _speed == 0
     unsigned int  _stepInterval;
+    unsigned int _minStepInterval;
+#define delta_t_N 100
+    unsigned int _delta_t[delta_t_N];
+    byte _cnt_delta_t[delta_t_N];
+    unsigned int _ramp_steps;
+
+    //min_delta_delta_t is in 4 us, thus 40us
+#define min_delta_delta_t 10
+
+    byte _imax;
+    byte _index;
+    byte _cnt_delta_t_current;
+
     float _acceleration;
     
 
