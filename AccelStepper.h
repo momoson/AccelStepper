@@ -457,6 +457,7 @@ class AccelStepper
     /// \return true if the speed is not zero or not at the target position
     bool    isRunning();
 
+    void setAcc(float acc);
   protected:
 
     /// \brief Direction indicator
@@ -489,6 +490,8 @@ class AccelStepper
     /// The current interval between steps in microseconds.
     /// 0 means the motor is currently stopped with _speed == 0
     unsigned int  _stepInterval;
+    float _acceleration;
+    
 
     /// The last step time in microseconds
     unsigned int  _lastStepTime;

@@ -72,6 +72,15 @@ AccelStepper::AccelStepper(uint8_t step_pin_shift, uint8_t dir_pin_shift)
   _direction = DIRECTION_CCW;
 }
 
+void AccelStepper::setAcc(float acc) // expects acceleration in #steps/s/s
+{
+  _acceleration = acc*4.0/1000000.0; // internally acceleration is needed in #steps/s/4us
+  generateRamp();
+  _stepInterval = _delta_t[0];
+  _index = 0;
+  _cnt_delta_t_current = _cnt_delta_t[0];
+}
+
 void AccelStepper::setMaxSpeed(float speed)
 {
   if (speed < 0.0)
