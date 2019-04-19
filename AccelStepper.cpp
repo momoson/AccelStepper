@@ -41,7 +41,7 @@ bool AccelStepper::generateRamp()
     { // whoa, some hardcore changes here or no more place for steps at this position
       ++i;
       if(i>=delta_t_N){
-        Serial.println("OVERFLOW RAMP BUFFER");
+        //Serial.println("OVERFLOW RAMP BUFFER");
         overflow = true;
         --i; // imax generation should still be working
         break;
@@ -55,6 +55,18 @@ bool AccelStepper::generateRamp()
     }
   }
   _imax = i; // this is guaranteed larger than _minStepInterval
+  /*
+  Serial.println("New ramp");
+  for(byte b=0;b<=_imax;b++){
+    Serial.print(b);
+    Serial.print("\t");
+    Serial.print(_delta_t[b]);
+    Serial.print("\t");
+    Serial.println(_cnt_delta_t[b]);
+  }
+  Serial.print("ramp steps");
+  Serial.println(_ramp_steps);
+  */
   return overflow;
 }
 
@@ -178,6 +190,7 @@ bool AccelStepper::get_step(byte & step, byte & dir, unsigned int & time)
 
   if ((time  - _lastStepTime) >= _stepInterval)
   { // a step is due
+    //Serial.println(_stepInterval);
     _lastStepTime = time;
     if (_direction == DIRECTION_CW)
     {
@@ -191,6 +204,18 @@ bool AccelStepper::get_step(byte & step, byte & dir, unsigned int & time)
       _currentPos -= 1;
     }
     step |= HIGH << _step_pin;
+
+    /*
+    Serial.print(_state);
+    Serial.print(" ");
+    Serial.print(_cnt_const);
+    Serial.print(" ");
+    Serial.print(_index);
+    Serial.print(" ");
+    Serial.print(_max_i_inc_dec);
+    Serial.print(" ");
+    Serial.println(_cnt_delta_t_current);
+    */
 
     switch(_state){
       case 3: // INCREASING SPEED
