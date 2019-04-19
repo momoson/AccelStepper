@@ -284,18 +284,26 @@ void AccelStepper::setEnablePin(uint8_t enablePin, bool enableInvert)
 
 void AccelStepper::stop()
 {
-  if(distanceToGo() == 0) return; // we are already stopped
-  long stepsToStop = 5;
-  if (_direction == DIRECTION_CW)
-    move(stepsToStop);
-  else
-    move(-stepsToStop);
+  switch(_state){
+    case 0: case 1: // already stopped or stopping
+      return;
+      break;
+    case 3:
+      // decreasing should start when acceleration is right now
+      _state = 1;
+    case 2:
+      // decreasing state is already prepared, only current timeInterval should be set
+      noInterrupts();
+      _stepInterval = _delta_t[_index];
+      _state = 1;
+      interrupts();
+      break;
+  }
 }
 
 void AccelStepper::hard_stop()
 {
-  if(distanceToGo() == 0) return; // we are already stopped
-  move(0);
+  _state = 0; // no steps anymore!
 }
 
 bool AccelStepper::isRunning()
