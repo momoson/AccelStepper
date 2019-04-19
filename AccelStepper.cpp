@@ -108,7 +108,7 @@ AccelStepper::AccelStepper(uint8_t step_pin_shift, uint8_t dir_pin_shift)
   _direction = DIRECTION_CCW;
 
   _index = 0;
-  _speed_start = 50;
+  _speed_start = 100;
 }
 
 void AccelStepper::setMaxSpeedAcc(float speed, float acc)
