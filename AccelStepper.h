@@ -496,7 +496,7 @@ class AccelStepper
     /// 0 means the motor is currently stopped with _speed == 0
     unsigned int  _stepInterval;
     unsigned int _minStepInterval;
-#define delta_t_N 100
+#define delta_t_N 70
     unsigned int _delta_t[delta_t_N];
     byte _cnt_delta_t[delta_t_N];
     unsigned int _ramp_steps;
