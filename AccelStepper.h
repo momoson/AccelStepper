@@ -499,15 +499,38 @@ class AccelStepper
     unsigned int _delta_t[delta_t_N];
     byte _cnt_delta_t[delta_t_N];
     unsigned int _ramp_steps;
+    byte _imax;
 
     //min_delta_delta_t is in 4 us, thus 40us
 #define min_delta_delta_t 10
 
-    byte _imax;
     byte _index;
     byte _cnt_delta_t_current;
 
     float _acceleration;
+
+    byte _state; // stores the state:
+    /* 3 -> increasing speed
+     * 2 -> constant speed
+     * 1 -> decreasing speed
+     * 0 -> idle
+     *
+     * For normal movement state starts at 3 and decreases to 0.
+     * If the distance is even and max speed cannot be reached, state 2 is skipped.
+     * For odd distance, state 2 is always used.
+     *
+     * For stopping the movement, one has two choices. 
+     * Stopping fast leads to a transition directly to state 0.
+     * Stopping slowly corresponds to a transition directly into state 1
+     */
+    
+    // for state 3 and 1
+    byte _max_i_inc_dec; // index for different delta_ts
+    byte _max_cnt_inc_dec; // index for same delta_ts
+
+    // for state 2
+    unsigned int _const_delta_t;
+    long _cnt_const;
     
 
     /// The last step time in microseconds

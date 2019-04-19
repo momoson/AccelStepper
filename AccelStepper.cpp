@@ -109,6 +109,7 @@ AccelStepper::AccelStepper(uint8_t step_pin_shift, uint8_t dir_pin_shift)
 
   _index = 0;
   _speed_start = 100;
+  _state = 0;
 }
 
 void AccelStepper::setMaxSpeedAcc(float speed, float acc)
@@ -137,7 +138,7 @@ bool AccelStepper::get_step(byte & step, byte & dir)
 
 bool AccelStepper::get_step(byte & step, byte & dir, unsigned int & time)
 {
-  if(distanceToGo() == 0) return true;
+  if(_state == 0) return true;
 
   if ((time  - _lastStepTime) >= _stepInterval)
   { // a step is due
@@ -155,20 +156,64 @@ bool AccelStepper::get_step(byte & step, byte & dir, unsigned int & time)
     }
     step |= HIGH << _step_pin;
 
-    if(_index <= _imax){ // still in the ramp
-      if(_cnt_delta_t_current == 0) //this ramp block is done
-      {
-        ++_index;
-        if(_index <= _imax) 
-        { // ramp goes on
-          _cnt_delta_t_current = _cnt_delta_t[_index];
-          _stepInterval = _delta_t[_index];
-        } else { // we are done with the ramp
-          _stepInterval = _minStepInterval;
+    switch(_state){
+      case 3: // INCREASING SPEED
+        if(_index < _max_i_inc_dec){ // not in last ramp block
+          if(_cnt_delta_t_current == 0){ // if block is done
+            ++_index;
+            _stepInterval = _delta_t[_index];
+            if(_index == _max_i_inc_dec){
+              _cnt_delta_t_current = _max_cnt_inc_dec;
+            } else {
+              _cnt_delta_t_current = _cnt_delta_t[_index];
+            }
+          } else { // block is not done
+            --_cnt_delta_t_current;
+          }
+        } else { // in last block
+          if(_cnt_delta_t_current == 0){ // block is done // now transition into other state
+            if(_cnt_const!= 0){ // state 2 is used
+              _state = 2;
+              _stepInterval = _const_delta_t;
+            } else { // directly start decreasing
+              _state = 1;
+              //_index is correct
+              //_stepInterval is correct
+            }
+            _cnt_delta_t_current = _max_cnt_inc_dec; // prepare already state 1
+          } else { // block is not done
+            --_cnt_delta_t_current;
+          }
         }
-      } else { // block not done yet
-        --_cnt_delta_t_current;
-      }
+        break;
+      case 2: // const speed
+        --_cnt_const;
+        if(_cnt_const <= 0){ // const movement done, transition to state 1
+          _state = 1;
+          _stepInterval = _delta_t[_index];
+          //_index from INC still correct. _cnt_delta_t_current was already prepared
+        }
+        break;
+      case 1: // DECREASING
+        if(_index > 0){ // not last block
+          if(_cnt_delta_t_current == 0){ // if block is done
+            --_index;
+            _stepInterval = _delta_t[_index];
+            _cnt_delta_t_current = _cnt_delta_t[_index];
+          } else { // block is not done
+            --_cnt_delta_t_current;
+          }
+        } else { // last block
+          if(_cnt_delta_t_current != 0){ // not done yet
+            --_cnt_delta_t_current;
+          } else { // done completely with movement
+            _state = 0;
+          }
+        }
+        break;
+      default:
+        //Serial.println("We are in an unknown state");
+        _state = 0;
     }
   }
   return false;
