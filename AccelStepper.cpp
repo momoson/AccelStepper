@@ -75,7 +75,53 @@ void AccelStepper::moveTo(long absolute)
 
 void AccelStepper::move(long relative)
 {
-  moveTo(_currentPos + relative);
+  if(relative == 0) return;
+  while(_state != 0); // block until movement done
+  _lastStepTime = CUR_TIME; // update initial step time
+  _direction = (relative > 0? DIRECTION_CW : DIRECTION_CCW);
+
+  if(relative < 0) relative *=-1; // always positive
+
+  //prepare stepInterval
+  _stepInterval = _delta_t[0];
+  _index = 0;
+  _cnt_delta_t_current = _cnt_delta_t[0];
+
+  //Serial.print("NEW MOVE: ");
+  //Serial.print(_ramp_steps);
+  //Serial.print(" ");
+  //Serial.println(relative);
+
+  // calculate 
+  if(relative == 1){
+     // due to _index == 0 and
+     _cnt_delta_t_current = 0; // decrease will stop after one step
+    _state = 1;
+  } else {
+    if(2*_ramp_steps <= relative){ // can reach max speed
+      _max_i_inc_dec = _imax;
+      _max_cnt_inc_dec = _cnt_delta_t[_imax];
+      _cnt_const = relative - 2*_ramp_steps;
+      _const_delta_t = _minStepInterval;
+    } else { // cannot reach maximum speed
+      if(relative % 2 ==1){ // odd, need one const step
+        _cnt_const = 1;
+      } else { // even, no const step
+        _cnt_const = 0;
+      }
+      relative /= 2; //steps in increasing state
+      unsigned int steps = 0;
+      byte i;
+      for(i = 0; i <= _imax && steps<relative; ++i){
+        steps += _cnt_delta_t[i] + 1;
+      }
+      --i;
+      _max_i_inc_dec = i;
+      _max_cnt_inc_dec = _cnt_delta_t[i] - (steps - relative);
+      _const_delta_t = _delta_t[i]; // is not used if even
+    }
+    _state = 3; // start the movement
+  }
 }
 
 
