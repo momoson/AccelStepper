@@ -60,17 +60,7 @@ bool AccelStepper::generateRamp()
 
 void AccelStepper::moveTo(long absolute)
 {
-  if (_targetPos != absolute)
-  {
-    if(distanceToGo() == 0){ // motor is stopped, thus update lastStepTime
-      _lastStepTime = CUR_TIME;
-    }
-    _targetPos = absolute;
-    long distance_to_go = distanceToGo();
-    if(distance_to_go > 0){
-      _direction = DIRECTION_CW;
-    } else _direction = DIRECTION_CCW;
-  }
+  move(absolute - _currentPos);
 }
 
 void AccelStepper::move(long relative)
