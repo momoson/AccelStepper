@@ -111,21 +111,19 @@ AccelStepper::AccelStepper(uint8_t step_pin_shift, uint8_t dir_pin_shift)
   _speed_start = 50;
 }
 
-void AccelStepper::setAcc(float acc) // expects acceleration in #steps/s/s
+void AccelStepper::setMaxSpeedAcc(float speed, float acc)
 {
-  _acceleration = acc*4.0/1000000.0; // internally acceleration is needed in #steps/s/4us
-  generateRamp();
-  _stepInterval = _delta_t[0];
-  _index = 0;
-  _cnt_delta_t_current = _cnt_delta_t[0];
-}
-
-void AccelStepper::setMaxSpeed(float speed)
-{
-  if (speed < 0.0)
-    speed = -speed;
-  _minStepInterval = (unsigned int)(1000000.0/speed) >> 2; // in 4 us granularity
-  generateRamp();
+  if(speed > 0.0){
+    _minStepInterval = (unsigned int)(1000000.0/speed) >> 2; // in 4 us granularity
+  }
+  if(acc > 0.0){
+    _acceleration = acc*4.0/1000000.0; // internally acceleration is needed in #steps/s/4us
+  }
+  if(generateRamp()){ // if overflow
+    _minStepInterval = _delta_t[_imax];
+    //Serial.print("Over flow ramp buffer. Clipped max speed at ");
+    //Serial.println(250000.0/_minStepInterval);
+  }
   _stepInterval = _delta_t[0];
   _index = 0;
   _cnt_delta_t_current = _cnt_delta_t[0];

@@ -366,7 +366,7 @@ class AccelStepper
     /// \param[in] speed The desired maximum speed in steps per second. Must
     /// be > 0. Caution: Speeds that exceed the maximum speed supported by the processor may
     /// Result in non-linear accelerations and decelerations.
-    void    setMaxSpeed(float speed);
+    void    setMaxSpeedAcc(float speed, float acc);
 
     /// returns the maximum speed configured for this stepper
     /// that was previously set by setMaxSpeed();
@@ -459,7 +459,6 @@ class AccelStepper
 
     bool generateRamp();
 
-    void setAcc(float acc);
   protected:
 
     /// \brief Direction indicator
