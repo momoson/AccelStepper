@@ -22,7 +22,8 @@ void dump(uint8_t* p, int l)
 }
 #endif
 
-void AccelStepper::generateRamp()
+// true if overflow, false if not
+bool AccelStepper::generateRamp()
 {
   float v = _speed_start;
   _delta_t[0] = (unsigned int)(1000000.0/v) >> 2;
@@ -30,6 +31,7 @@ void AccelStepper::generateRamp()
   _ramp_steps = 1;
   unsigned int i=0;
   unsigned int delta_t_temp;
+  bool overflow = false;
   while(true)
   {
     v += _delta_t[i] * _acceleration;
@@ -40,6 +42,7 @@ void AccelStepper::generateRamp()
       ++i;
       if(i>=delta_t_N){
         Serial.println("OVERFLOW RAMP BUFFER");
+        overflow = true;
         --i; // imax generation should still be working
         break;
       }
@@ -52,6 +55,7 @@ void AccelStepper::generateRamp()
     }
   }
   _imax = i; // this is guaranteed larger than _minStepInterval
+  return overflow;
 }
 
 void AccelStepper::moveTo(long absolute)

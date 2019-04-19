@@ -457,7 +457,7 @@ class AccelStepper
     /// \return true if the speed is not zero or not at the target position
     bool    isRunning();
 
-    void generateRamp();
+    bool generateRamp();
 
     void setAcc(float acc);
   protected:
