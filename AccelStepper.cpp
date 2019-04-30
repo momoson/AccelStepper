@@ -22,6 +22,16 @@ void dump(uint8_t* p, int l)
 }
 #endif
 
+float AccelStepper::get_acc()
+{
+  return _acceleration*250000.0;
+}
+
+float AccelStepper::get_speed()
+{
+  return 250000.0/_minStepInterval;
+}
+
 // true if overflow, false if not
 bool AccelStepper::generateRamp()
 {

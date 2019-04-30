@@ -359,6 +359,9 @@ class AccelStepper
     bool get_step(byte & step, byte & dir);
     bool get_step(byte & step, byte & dir, unsigned int & time);
 
+    float get_speed();
+    float get_acc();
+
     /// Sets the maximum permitted speed. The run() function will accelerate
     /// up to the speed set by this function.
     /// Caution: the maximum speed achievable depends on your processor and clock speed.
